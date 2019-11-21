@@ -1,0 +1,70 @@
+#include<Windows.h>
+#include<gl/GL.h>
+#include<gl/glu.h>
+#include<gl/glut.h>
+
+
+void myInit(void)
+{
+	glClearColor(1.0, 1.0, 1.0, 0.0); // set the background to white
+	glColor3f(0.0f, 0.0f, 0.0f); // set the drawing color to black
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0.0, 640.0, 0.0, 480.0);
+}
+
+
+void parameterizedHouse(POINT peak, GLint width, GLint height) {
+	glBegin(GL_LINE_LOOP);
+	glVertex2i(peak.x, peak.y); // draw the shell of the house
+	glVertex2i(peak.x + width / 2, peak.y - 3 * height / 8);//topRight
+	glVertex2i(peak.x + width / 2, peak.y - height);//downRight
+	glVertex2i(peak.x - width / 2, peak.y - height);//downLeft
+	glVertex2i(peak.x - width / 2, peak.y - 3 * height / 8);//topLeft
+	glVertex2i(peak.x - width / 3, peak.y - 10 * height / 40);//left...
+	glVertex2i(peak.x - width / 3, peak.y + height / 6);//downLeft...
+	glVertex2i(peak.x - width / 6, peak.y + height / 6);//downRight...
+	glVertex2i(peak.x - width / 6, peak.y - 10 * height / 80);//right...
+	glEnd();
+
+	glBegin(GL_LINE_LOOP); //draw the door
+	glVertex2i(peak.x - width / 10, peak.y - height );//downRight
+	glVertex2i(peak.x - width / 10, peak.y - 10 * height / 20);
+	glVertex2i(peak.x - width / 3, peak.y - 10 * height / 20);
+	glVertex2i(peak.x - width / 3, peak.y - height);//downLeft
+	glEnd();
+
+	glBegin(GL_LINE_LOOP); //draw the windows
+	glVertex2i(peak.x + width / 10, peak.y - height / 3);//downRight
+	glVertex2i(peak.x + width / 10, peak.y - 10 * height / 20);
+	glVertex2i(peak.x + width / 3, peak.y - 10 * height / 20);
+	glVertex2i(peak.x + width / 3, peak.y - height / 3);//downLeft
+	glEnd();
+
+}
+
+
+void mouse(int bin, int state, int x, int y) {
+	if (bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		POINT p;
+		p.x = x;
+		p.y = 480.0 - y;
+		
+		glClear(GL_COLOR_BUFFER_BIT);
+		parameterizedHouse(p, 250, 250);
+		glFlush();
+	}
+}
+
+
+void main(int argc, char** argv)
+{
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowSize(640, 480);
+	glutInitWindowPosition(300, 100);
+	glutCreateWindow("House");
+	glutMouseFunc(mouse);
+	myInit();
+	glutMainLoop();
+}

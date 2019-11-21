@@ -1,0 +1,52 @@
+void DrawCircle()
+{
+	float cx;
+	float cy;
+	float r;
+	int num_segments = 500;
+	glClear(GL_COLOR_BUFFER_BIT);
+	for (size_t i = 0; i < 50; i++)
+	{
+		R = (random2(100) / 100.0);
+		G = (random2(100) / 100.0);
+		B = (random2(100) / 100.0);
+
+		float cx = rand() % 640;
+		float cy = rand() % 480;
+		float r = rand() % 80;
+
+		glBegin(GL_POINTS);
+		glColor3f(R, G, B);
+		for (float ii = 0; ii < num_segments; ii += .5)
+		{
+			GLfloat angle = ii * 0.0174533;
+
+			glVertex2d(cx + (cos(angle) * r), cy + (sin(angle) * r));
+
+		}
+		glEnd();
+		glFlush();
+	}
+	for (size_t i = 0; i < 50; i++)
+	{
+		R = (random2(100) / 100.0);
+		G = (random2(100) / 100.0);
+		B = (random2(100) / 100.0);
+
+		float cx = rand() % 640;
+		float cy = rand() % 480;
+		float r = rand() % 80;
+
+		glBegin(GL_LINE_LOOP);
+		glColor3f(R, G, B);
+		for (float ii = 0; ii < num_segments; ii += .5)
+		{
+			GLfloat angle = ii * 0.0174533;
+			glVertex2f(cx, cy);//output vertex
+			glVertex2d(cx + (cos(angle) * r), cy + (sin(angle) * r));
+
+		}
+		glEnd();
+		glFlush();
+	}
+}
