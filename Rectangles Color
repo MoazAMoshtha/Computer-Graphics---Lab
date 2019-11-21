@@ -1,0 +1,84 @@
+#include<Windows.h>
+#include<gl/GL.h>
+#include<gl/glu.h>
+#include<gl/glut.h>
+#include<math.h>
+#include <iostream>
+
+using namespace std;
+
+const int screenWidth = 480;
+const int screenHeight = 640;
+GLfloat r , g, b;
+
+
+void myInit(void)
+{
+	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, (GLdouble)screenWidth, 0, (GLdouble)screenHeight); 
+}
+void Recti() {
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 0.0, 0.0);//red
+	glRecti(30, 40, 90, 120);
+	glColor3f(0.0, 1.0, 0.0);//green
+	glRecti(120, 40, 180, 120);
+	glColor3f(0.0, 0.0, 1.0);//blue
+	glRecti(210, 40, 270, 120);
+	glColor3f(0.5, 0.5, 0.5);//grey
+	glRecti(300, 40, 360, 120);
+	glColor3f(0.0, 0.0, 0.0);//black
+	glRecti(390, 40, 450, 120);
+	glFlush();
+}
+void mouse(int bin, int state, int x, int y) {	
+if (bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+	if (x > 30 && x < 120 && y>390) {
+		r = 1.0;
+		g = 0.0;
+		b = 0.0;
+	}
+	else if (x > 150 && x < 245 && y>390) {
+		r = 0.0;
+		g = 1.0;
+		b = 0.0;
+	}
+	else if (x > 270 && x < 360 && y>390) {
+		r = 0.0;
+		g = 0.0;
+		b = 1.0;
+	}
+	else if (x > 390 && x < 480 && y>390) {
+		r = 0.5;
+		g = 0.5;
+		b = 0.5;
+	}
+	else if (x > 510 && x < 600 && y>390) {
+		r = 0.0;
+		g = 0.0;
+		b = 0.0;
+	}
+	else
+	{
+		r = 1.0;
+		g = 1.0;
+		b = 1.0;
+	}
+}
+glColor3f(r, g, b); //bigRecti
+glRecti(30, 160, 450, 600);
+glFlush();
+}
+int main(int argc, char** argv)
+{
+	glutInit(&argc, argv);
+	glutInitWindowSize(screenHeight,screenWidth);
+	glutInitWindowPosition(300, 100);
+	glutCreateWindow("Rectangle Color");
+	glutMouseFunc(mouse);
+	glutDisplayFunc(Recti);
+	myInit();
+	glutMainLoop();
+}
