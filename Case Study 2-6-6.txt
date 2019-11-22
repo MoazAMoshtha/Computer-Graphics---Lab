@@ -1,0 +1,181 @@
+#include<Windows.h>
+#include<gl/GL.h>
+#include<gl/glut.h>
+
+
+class GLintPoint {
+public:
+	GLint x, y;
+};
+
+
+#define NUM 20
+static GLintPoint List[NUM][NUM];
+static int polylineNum = 0;            // last index used so far
+static int lineNum = 0;            // last index used so far
+
+int mouseMode;
+
+bool empty = true;
+int buffer1 = -1;
+int buffer2 = -1;
+int inputx;
+int inputy;
+
+void myInit(void)
+{
+	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glColor3f(R, G, B);
+	glPointSize(4.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0.0, 640, 0.0, 480);
+}
+
+void drawDot(GLint x, GLint y)
+{
+	glBegin(GL_POINTS);
+	glPointSize(10);
+	glVertex2i(x, y);
+	glEnd();
+	glFlush();
+}
+
+void myMouse(int button, int state, int x, int y)
+{
+
+	// test for mouse button as well as for a full array 
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && lineNum < NUM - 1)
+	{
+		inputx = x;
+		inputy = 480 - y;
+
+		switch (mouseMode)
+		{
+		case 1:
+			List[polylineNum][lineNum].x = inputx;			// add new point to list 
+			List[polylineNum][lineNum].y = inputy;		// window height is 480 
+			lineNum++;
+			break;
+		case 2:
+			for (int ia = 0; ia < 20; ia++) 
+			{
+				for (size_t i = 0; i < 20; i++)
+				{
+					if ((abs(List[ia][i].x - inputx) < 5) && (abs(List[ia][i].y - inputy) < 5)) 
+					{
+						for (size_t ib = i; ib < 20; ib++)
+						{
+							List[ia][ib].x = List[ia][ib + 1].x;
+							List[ia][ib].y = List[ia][ib + 1].y;
+
+						}
+					}
+				}
+			}
+			break;
+		case 3:
+			if (empty)
+			{
+				for (int ia = 0; ia < 20; ia++)
+				{
+					for (size_t i = 0; i < 20; i++)
+					{
+						if ((abs(List[ia][i].x - inputx) < 5) && (abs(List[ia][i].y - inputy) < 5))
+						{
+							buffer1 = ia;
+							buffer2 = i;
+							empty = false;
+							
+						}
+					}
+				}
+			}
+			else
+			{
+				List[buffer1][buffer2].x = inputx;
+				List[buffer1][buffer2].y = inputy;
+				buffer1 = -1;
+				buffer2 = -1;
+				empty = true;
+			}
+			break;
+
+		default:
+			break;
+		}
+
+
+		glClear(GL_COLOR_BUFFER_BIT);				// clear the screen 
+		glColor3f(1.0, 0.0, 0.0);
+		for (int ia = 0; ia < 20; ia++) 
+		{
+
+			glBegin(GL_LINE_STRIP);
+			glLineWidth(4);
+			for (size_t i = 0; i < 20; i++)
+			{
+				if (List[ia + 1][i].x == 0 && List[ia + 1][i].y == 0) break; // stop if polygon end
+				glVertex2i(List[ia + 1][i].x, List[ia + 1][i].y);
+			}
+			glEnd();
+			glFlush();
+		}
+
+	}
+}
+
+void myKeyboard(unsigned char theKey, int mouseX, int mouseY) {
+
+	GLint x = mouseX; //grab the mouse position
+	mouseY = 480 - mouseY;
+	GLint y = mouseY; // flip it as usual
+	switch (theKey) 
+	{
+	case 'b':   // create a new polyline
+		polylineNum++;
+		lineNum = 0;
+		mouseMode = 1;
+		break;
+	case 'd':
+		mouseMode = 2;
+		break;
+	case 'm':
+		mouseMode = 3;
+		break;
+	case 'r':
+		for (int ia = 0; ia < 20; ia++) 
+		{
+			for (size_t i = 0; i < 20; i++)
+			{
+				List[ia][i].x = 0;
+				List[ia][i].y = 0;
+			}
+		}
+		break;
+	case 'q':
+		exit(-1);   //terminate the program
+		break;
+
+	default:
+		break;      // do nothing
+	}
+}
+
+void main(int argc, char** argv)
+{
+
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowSize(640, 480);
+	glutInitWindowPosition(50, 50);
+	glutCreateWindow("Case Study 2.6.6");
+
+	glutKeyboardFunc(myKeyboard);
+	glutMouseFunc(myMouse);
+	//glutDisplayFunc(house);
+	myInit();
+	glutMainLoop();
+
+}
