@@ -1,0 +1,99 @@
+#include<Windows.h>
+#include<gl/GL.h>
+#include<gl/glut.h>
+#include <iostream>
+#include <GL/glut.h>
+#include <math.h>
+using namespace std;
+
+
+
+
+void myInit(void)
+{
+	glClearColor(0.2, 0.2, 1.0, 0.0);
+	glPointSize(4.0);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0.0, 640, 0.0, 480);
+}
+
+
+
+void DrawCircle(float cx, float cy, float r, int num_segments, float R, float G, float B)
+{
+	glBegin(GL_POLYGON);
+	glColor3f(R, G, B);
+	for (int ii = 0; ii < num_segments; ii++)
+	{
+		float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
+		float x = r * cosf(theta);//calculate the x component
+		float y = r * sinf(theta);//calculate the y component
+		glVertex2f(x + cx, y + cy);//output vertex
+	}
+	glEnd();
+}
+void DrawRecti(float x1, float y1, float x2, float y2, float R, float G, float B) {
+	glColor3f(R, G, B);
+	glRecti(x1, y1, x2, y2);
+}
+void Drawtang(float x1, float y1, float x2, float y2, float x3, float y3, float R, float G, float B) {
+	glColor3f(R, G, B);
+	glBegin(GL_POLYGON);
+	glVertex2f(x1,y1);
+	glVertex2f(x2,y2);
+	glVertex2f(x3,y3);
+	glEnd();
+}
+void DrawLine(float x1, float y1, float x2, float y2 , float R, float G, float B) {
+	glColor3f(R, G, B);
+	glBegin(GL_LINES);
+	glLineWidth(2);
+	glVertex2f(x1, y1);
+	glVertex2f(x2, y2);
+	glEnd();
+}
+void Game() {
+	glClear(GL_COLOR_BUFFER_BIT);
+	DrawCircle(90, 390, 35, 50, 1.0, .8, 0.0);// sun
+	
+	DrawRecti(0, 0, 640, 50, 0.2,1.0, 0.2);//ground
+	DrawRecti(50, 50, 100, 260, .46,0.36, 0.14);//tree
+	DrawRecti(540, 50, 590, 260, .46, 0.36, 0.14);//tree2
+
+	DrawRecti(180, 50 , 460, 280 , .9 , 0.7 , .8);//house
+
+	DrawRecti(290, 50 , 350, 180 , 0.35 , 0.29 , 0.12);//door
+	DrawRecti(200, 220 , 250 , 270 , 0.8 , 0.9 , 1.0);//window1
+	DrawLine(224,220,225,270,0,0,0);
+	DrawLine(200,245,250,245,0,0,0);
+	DrawRecti(390, 220 , 440 , 270 , 0.8, 0.9, 1.0);//window 2
+	DrawLine(390,245,440,245,0,0,0);
+	DrawLine(415,220,415,270,0,0,0);
+	DrawCircle(75, 255, 60, 50, 0 , 1, 0);//treel
+	DrawCircle(565 , 255, 60, 50, 0 , 1, 0);//tree
+	DrawCircle(410 , 440, 30, 50, 1.0 , 1.0, 1.0);//tcloud1
+	DrawCircle(445 , 435, 20, 50, 1 , 1, 1);//tcloud1
+	DrawCircle(435 , 455, 20, 50, 1 , 1, 1);//tcloud1
+	DrawCircle(435, 420, 20, 50, 1 , 1, 1);//tcloud1
+	Drawtang(180,280,460,280,320,350,.5,.5,.5);
+	DrawCircle(340, 115, 5, 50, 1.0, .8, 0.0);// 
+
+
+
+	glFlush();
+}
+
+void main(int argc, char** argv)
+{
+
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowSize(640, 480);
+	glutInitWindowPosition(50, 50);
+	glutCreateWindow("Game");
+	glutDisplayFunc(Game);
+	myInit();
+	glutMainLoop();
+
+}
