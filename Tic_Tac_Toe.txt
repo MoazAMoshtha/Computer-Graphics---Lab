@@ -1,0 +1,423 @@
+#include<windows.h>
+#include<GL/glut.h>
+#include<GL/GL.h>
+#include<math.h>
+#include<stdio.h>
+#include<iostream>
+#include<list>
+
+using namespace std;
+
+void display();
+
+#define NUM 9
+static int X[NUM];
+static int o[NUM];
+static int field[NUM];
+static int xo;
+static int gameover;
+static int xwins;
+static int owins;
+
+
+void init(void)
+{
+	glClearColor(0.82, 0.82, 0.83 ,0.0);
+	glLineWidth(2.0);
+        glPointSize(1.3);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(187, 506, 537,165);
+}
+
+void DrawDots(int x, int y, int wins) {
+	glBegin(GL_POINTS);
+	glColor3d(0.44,0.44,0.43);
+	for (size_t i = 0; i < wins; i++)
+	{
+		glVertex2i(x + 26 * (i % 5), y - 13 * (i / 5));
+	}
+	glEnd();
+}
+void DrawLineScoure(float x1, float y1, float x2, float y2, int wins) {
+	glBegin(GL_LINES);
+	glColor3d(0.44, 0.44, 0.43);
+	glLineWidth(2);
+	for (size_t i = 0; i < wins; i++)
+	{
+		glVertex2f(x1 - 4*(i%5) , y1 );
+		glVertex2f(x2 - 4 * (i % 5), y2 );
+	}
+	
+	glEnd();
+}
+void DrawRecti(float x1, float y1, float x2, float y2, float R, float G, float B) {
+	glColor3f(R, G, B);
+	glRecti(x1, y1, x2, y2);
+}
+
+void DrawLine(float x1, float y1, float x2, float y2, float R, float G, float B) {
+	glColor3f(R, G, B);
+	glBegin(GL_LINES);
+	glLineWidth(2);
+	glVertex2f(x1, y1);
+	glVertex2f(x2, y2);
+	glEnd();
+}
+
+void DrawO(float cx, float cy, int xScale, int yScale)
+{
+	glBegin(GL_POINTS);
+	glColor3f(0.44, 0.44, 0.45);
+	for (int ii = 0; ii < 200; ii++)
+	{
+		float theta = 2.0f * 3.1415926f * float(ii) / float(200);
+		float x = xScale * cosf(theta);
+		float y = yScale * sinf(theta);
+		glVertex2f(x + cx, y + cy);
+	}
+	glEnd();
+}
+
+void drawCircle(float cx, float cy, float r, float R, float G, float B) {
+	glBegin(GL_POINTS);
+	glColor3f(R, G, B);
+	for (int ii = 0; ii < 200; ii++)
+	{
+		float theta = 2.0f * 3.1415926f * float(ii) / float(200);
+		float x = r * cosf(theta);
+		float y = r * sinf(theta);
+		glVertex2f(x + cx, y + cy);
+	}
+	glEnd();
+}
+
+void DrawX(int x, int y , int xScale , int yScale) {
+	DrawLine(x - xScale , y - yScale, x + xScale, y + yScale, 0.44, 0.44, 0.44);
+	DrawLine(x - xScale, y + yScale, x + xScale, y - yScale, 0.44, 0.44, 0.44);
+}
+
+void reset() {
+	for (size_t i = 0; i < 9; i++)
+	{
+		X[i] = 0;
+		o[i] = 0;
+		field[i] = 0;
+	}
+	gameover = 0;
+}
+
+void restart() {
+	reset();
+	owins = 0;
+	xwins = 0;
+}
+
+void wintest() {
+
+	if (X[0] == 1 && X[1] == 1 && X[2] == 1) {
+		gameover = 1;
+		xwins++;
+	}
+	if (X[3] == 1 && X[4] == 1 && X[5] == 1) {
+		gameover = 1;
+		xwins++;
+	}
+	if (X[6] == 1 && X[7] == 1 && X[8] == 1) {
+		gameover = 1;
+		xwins++;
+	}
+
+	if (X[0] == 1 && X[3] == 1 && X[6] == 1) {
+		gameover = 1;
+		xwins++;
+	}
+	if (X[1] == 1 && X[4] == 1 && X[7] == 1) {
+		gameover = 1;
+		xwins++;
+	}
+	if (X[2] == 1 && X[5] == 1 && X[8] == 1) {
+		gameover = 1;
+		xwins++;
+	}
+
+	if (X[0] == 1 && X[4] == 1 && X[8] == 1) {
+		gameover = 1;
+		xwins++;
+	}
+	if (X[6] == 1 && X[4] == 1 && X[2] == 1) {
+		gameover = 1;
+		xwins++;
+	}
+
+	
+	if (o[0] == 1 && o[1] == 1 && o[2] == 1) {
+		gameover = 1;
+		owins++;
+	}
+	if (o[3] == 1 && o[4] == 1 && o[5] == 1) {
+		gameover = 1;
+		owins++;
+	}
+	if (o[6] == 1 && o[7] == 1 && o[8] == 1) {
+		gameover = 1;
+		owins++;
+	}
+
+	if (o[0] == 1 && o[3] == 1 && o[6] == 1) {
+		gameover = 1;
+		owins++;
+	}
+	if (o[1] == 1 && o[4] == 1 && o[7] == 1) {
+		gameover = 1;
+		owins++;
+	}
+	if (o[2] == 1 && o[5] == 1 && o[8] == 1) {
+		gameover = 1;
+		owins++;
+	}
+
+	if (o[0] == 1 && o[4] == 1 && o[8] == 1) {
+		gameover = 1;
+		owins++;
+	}
+	if (o[6] == 1 && o[4] == 1 && o[2] == 1) {
+		gameover = 1;
+		owins++;
+	}
+
+}
+
+bool location(float x, float y, float x1, float y1, float x2, float y2) {
+	if (x > x1 && x < x2 && y > y2 && y < y1) {
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void keyboard(unsigned char thekey, int mouseX, int mouseY) {
+	switch (thekey)
+	{
+	case 'n' :
+		reset();
+		break;
+	case 'r':
+		restart();
+		break;
+	default:
+		break;
+	}
+}
+void myMouse(int button, int state, int x, int y) {
+
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{if (xwins == 3 || owins == 3) {
+		restart();
+	}
+	else if (gameover == 1) {
+		reset();
+	}else if (location(x, y, 26,112,113,27)) {
+				if (field[0] == 0)
+				{
+					if (xo == 0) {
+						X[0] = 1;
+						xo = 1;
+						
+					}
+					else {
+						o[0] = 1;
+						xo = 0;
+					}
+					field[0] = 1;
+				}
+			}
+			if (location(x, y, 116, 111, 201, 29)) {
+				if (field[1] == 0)
+				{
+					if (xo == 0) {
+						X[1] = 1;
+						xo = 1;
+					}
+					else {
+						o[1] = 1;
+						xo = 0;
+					}
+					field[1] = 1;
+				}
+			}
+			if (location(x, y, 206, 110, 289, 28)) {
+				if (field[2] == 0)
+				{
+					if (xo == 0) {
+						X[2] = 1;
+						xo = 1;
+					}
+					else {
+						o[2] = 1;
+						xo = 0;
+					}
+					field[2] = 1;
+				}
+			}
+
+			if (location(x, y, 28, 198, 111, 115)) {
+				if (field[3] == 0)
+				{
+					if (xo == 0) {
+						X[3] = 1;
+						xo = 1;
+					}
+					else {
+						o[3] = 1;
+						xo = 0;
+					}
+					field[3] = 1;
+				}
+			}
+			if (location(x, y, 117, 198, 199, 115)) {
+				if (field[4] == 0)
+				{
+					if (xo == 0) {
+						X[4] = 1;
+						xo = 1;
+					}
+					else {
+						o[4] = 1;
+						xo = 0;
+					}
+					field[4] = 1;
+				}
+			}
+			if (location(x, y,207, 197, 288, 116)) {
+				if (field[5] == 0)
+				{
+					if (xo == 0) {
+						X[5] = 1;
+						xo = 1;
+					}
+					else {
+						o[5] = 1;
+						xo = 0;
+					}
+					field[5] = 1;
+				}
+			}
+
+			if (location(x, y, 28, 286, 111, 203)) {
+				if (field[6] == 0)
+				{
+					if (xo == 0) {
+						X[6] = 1;
+						xo = 1;
+					}
+					else {
+						o[6] = 1;
+						xo = 0;
+					}
+					field[6] = 1;
+				}
+			}
+			if (location(x, y, 117, 286, 200, 203)) {
+				if (field[7] == 0)
+				{
+					if (xo == 0) {
+						X[7] = 1;
+						xo = 1;
+					}
+					else {
+						o[7] = 1;
+						xo = 0;
+					}
+					field[7] = 1;
+				}
+			}
+			if (location(x, y, 207, 288, 288, 203)) {
+				if (field[8] == 0)
+				{
+					if (xo == 0) {
+						X[8] = 1;
+						xo = 1;
+					}
+					else {
+						o[8] = 1;
+						xo = 0;
+					}
+					field[8] = 1;
+				}
+			}
+		
+	}
+}
+
+void display()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	DrawRecti(213, 277, 301, 191, 1.0, 1.0, 1.0);     
+	DrawRecti(213, 365, 301, 279, 1.0, 1.0, 1.0);
+	DrawRecti(213, 456, 301, 367, 1.0, 1.0, 1.0);
+	
+	DrawRecti(303, 277, 390, 191, 1.0, 1.0, 1.0);
+	DrawRecti(303, 365, 390, 279, 1.0, 1.0, 1.0);
+	DrawRecti(303, 456, 390, 367, 1.0, 1.0, 1.0);
+	
+	DrawRecti(392, 277, 478, 191, 1.0, 1.0, 1.0);
+	DrawRecti(392, 365, 478, 279, 1.0, 1.0, 1.0);
+	DrawRecti(392, 456, 478, 367, 1.0, 1.0, 1.0);    
+
+	DrawRecti(286, 507, 319, 473, 1,1,1);   
+	DrawRecti(375, 507, 408, 473, 0.82, 0.82, 0.83);            
+
+	
+
+	DrawRecti(286, 525, 319, 512, 1.00, 1.00, 1);          
+	DrawRecti(375, 525, 408, 512, 1.00, 1.00, 1);                 
+
+	if (xo == 0) {
+		DrawRecti(375, 507, 408, 473, 1.00, 1.00, 1.0);        
+		DrawRecti(286, 507, 319, 473, 0.82, 0.82, 0.83);      
+	}
+	DrawX(391, 492, 13, 13);                                 
+	DrawO(302, 492, 13, 13);                                 
+
+	
+	for (size_t i = 0; i < 9; i++)
+	{
+		if (X[i] == 1) {
+			DrawX(257 + (88 * (i % 3)) , 234 + (88 * (i / 3)),40,40);
+		}
+	}
+
+
+	for (size_t i = 0; i < 9; i++)
+	{
+		if (o[i] == 1) {
+			DrawO(257 + (88 * (i % 3)), 234 + (88 * (i / 3)), 40, 40);
+
+
+		}
+	}
+
+	wintest();
+	DrawLineScoure(308, 522, 315, 515, owins);
+	DrawLineScoure(397, 522, 404, 515, xwins);
+	glFlush();
+}
+
+int main(int argc, char** argv) {
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowSize(319, 372);
+	glutInitWindowPosition(300, 200);
+	glutCreateWindow("Tic Tac Toe");
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc(myMouse);
+	glutDisplayFunc(display);
+	init();
+	glutMainLoop();
+	return 0;
+	}
